@@ -1,0 +1,27 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { PageHeader } from "@/components/fluxia/PageHeader";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Printer, ScanBarcode, ReceiptText, PlugZap } from "lucide-react";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/_app/pdv/configuracoes")({ component: PdvConfiguracoesPage });
+
+function PdvConfiguracoesPage() {
+  const [printerType, setPrinterType] = useState("escpos-usb");
+  const [barcodeMode, setBarcodeMode] = useState("keyboard");
+  return <div className="custom-scrollbar h-[calc(100vh-8rem)] overflow-y-auto pr-1">
+    <PageHeader title="Configurações do PDV" description="Impressão de cupons, tipo de impressora, cupom fiscal, leitor de código de barras e integração local." action={<Button onClick={() => toast.success("Configurações salvas no mock.")}>Salvar configurações</Button>} />
+    <div className="grid gap-4 xl:grid-cols-2">
+      <Card className="rounded-2xl p-5 shadow-soft"><div className="flex items-center gap-2"><Printer className="h-5 w-5 text-primary" /><h3 className="font-semibold">Impressora de cupom</h3></div><div className="mt-4 grid gap-3 sm:grid-cols-2"><div><Label>Tipo de impressora</Label><Select value={printerType} onValueChange={setPrinterType}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="escpos-usb">ESC/POS USB</SelectItem><SelectItem value="escpos-rede">ESC/POS Rede/IP</SelectItem><SelectItem value="windows">Impressora Windows</SelectItem><SelectItem value="browser">Impressão pelo navegador</SelectItem></SelectContent></Select></div><div><Label>Nome/IP da impressora</Label><Input placeholder="Ex.: ELGIN i9 / 192.168.0.80" /></div><div><Label>Largura do papel</Label><Select defaultValue="80"><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="58">58 mm</SelectItem><SelectItem value="80">80 mm</SelectItem></SelectContent></Select></div><div><Label>Gaveta</Label><Select defaultValue="printer"><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="printer">Pulso pela impressora</SelectItem><SelectItem value="manual">Manual</SelectItem><SelectItem value="none">Não usar</SelectItem></SelectContent></Select></div></div><div className="mt-4 flex items-center justify-between rounded-xl border p-3"><span className="text-sm">Imprimir comprovante automaticamente</span><Switch defaultChecked /></div></Card>
+      <Card className="rounded-2xl p-5 shadow-soft"><div className="flex items-center gap-2"><ReceiptText className="h-5 w-5 text-primary" /><h3 className="font-semibold">Fiscal e cupom</h3></div><div className="mt-4 grid gap-3 sm:grid-cols-2"><div><Label>Modelo de cupom</Label><Select defaultValue="nfce"><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="nfce">NFC-e</SelectItem><SelectItem value="nao-fiscal">Cupom não fiscal</SelectItem><SelectItem value="sat">SAT/MFE</SelectItem></SelectContent></Select></div><div><Label>Ambiente</Label><Select defaultValue="homologacao"><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="homologacao">Homologação</SelectItem><SelectItem value="producao">Produção</SelectItem></SelectContent></Select></div><div><Label>CFOP padrão venda estadual</Label><Input defaultValue="5102" /></div><div><Label>CFOP padrão venda interestadual</Label><Input defaultValue="6102" /></div></div><p className="mt-3 text-xs text-muted-foreground">A emissão real deve passar por serviço fiscal com certificado, CSC/token, contingência e autorização SEFAZ.</p></Card>
+      <Card className="rounded-2xl p-5 shadow-soft"><div className="flex items-center gap-2"><ScanBarcode className="h-5 w-5 text-primary" /><h3 className="font-semibold">Leitor de código de barras</h3></div><div className="mt-4 grid gap-3 sm:grid-cols-2"><div><Label>Modo do leitor</Label><Select value={barcodeMode} onValueChange={setBarcodeMode}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="keyboard">Teclado/Enter</SelectItem><SelectItem value="serial">Serial/USB COM</SelectItem><SelectItem value="camera">Câmera</SelectItem></SelectContent></Select></div><div><Label>Sufixo esperado</Label><Input defaultValue="Enter" /></div></div><div className="mt-4 flex items-center justify-between rounded-xl border p-3"><span className="text-sm">Adicionar item automaticamente após leitura</span><Switch defaultChecked /></div></Card>
+      <Card className="rounded-2xl p-5 shadow-soft"><div className="flex items-center gap-2"><PlugZap className="h-5 w-5 text-primary" /><h3 className="font-semibold">Conector local</h3></div><p className="mt-2 text-sm text-muted-foreground">Para impressora USB, SAT/MFE e gaveta, o backend deve usar um agente local instalado no computador do caixa, comunicando via localhost/WebSocket com o Fluxia.</p><div className="mt-4 grid gap-3 sm:grid-cols-2"><Button variant="outline" onClick={() => toast.info("Teste enviado para impressora no mock.")}>Testar impressão</Button><Button variant="outline" onClick={() => toast.info("Pulso da gaveta simulado.")}>Testar gaveta</Button></div></Card>
+    </div>
+  </div>;
+}
